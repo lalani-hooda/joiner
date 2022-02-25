@@ -73,6 +73,12 @@ def _write_file(df: pd.DataFrame, file_path: str):
 
 
 def _get_args() -> argparse.Namespace:
+    """receive and parse command line arguments
+
+    Returns:
+        argparse.Namespace: parsed arguments
+    """
+    
     parser = argparse.ArgumentParser(
         description='a small command line tool to join files')
     parser.add_argument('left', help='left table to join',

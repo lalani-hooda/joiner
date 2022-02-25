@@ -1,8 +1,9 @@
 import argparse
-from enum import Enum, auto
 import io
-import pandas as pd
 import pathlib
+from enum import Enum, auto
+
+import pandas as pd
 
 
 class DataType(Enum):

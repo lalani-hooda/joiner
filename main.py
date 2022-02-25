@@ -19,8 +19,8 @@ def _dump_args(args: argparse.Namespace):
     """
 
     t = vars(args)
-    print('DESCRIPTION')
-    [print(f'\t{k:10}\t{t[k]}') for _, k in enumerate(t)]
+    print("DESCRIPTION")
+    [print(f"\t{k:10}\t{t[k]}") for _, k in enumerate(t)]
 
 
 def _get_data_type(file_path: str) -> DataType:
@@ -34,9 +34,9 @@ def _get_data_type(file_path: str) -> DataType:
     """
 
     ext = pathlib.Path(file_path).suffix
-    if ext == '.csv':
+    if ext == ".csv":
         return DataType.CSV
-    if ext in ['.xls', '.xlsx']:
+    if ext in [".xls", ".xlsx"]:
         return DataType.EXCEL
 
 
@@ -80,21 +80,42 @@ def _get_args() -> argparse.Namespace:
     """
 
     parser = argparse.ArgumentParser(
-        description='a small command line tool to join files')
-    parser.add_argument('left', help='left table to join',
-                        type=argparse.FileType('r', encoding='utf8'))
-    parser.add_argument('right', help='right table to join',
-                        type=argparse.FileType('r', encoding='utf-8'))
-
-    required_named = parser.add_argument_group('required named arguments')
-    required_named.add_argument(
-        '-l', '--left-key', help='left field to join on', required=True)
+        description="a small command line tool to join files"
+    )
     parser.add_argument(
-        '-r', '--right-key', help='right field to join on (leave empty for natural join)', required=False)
-    parser.add_argument('-j', '--join-method', choices=[
-                        'left', 'right', 'inner'], help='SQL equivalent join method', default='inner')
+        "left", help="left table to join", type=argparse.FileType("r", encoding="utf8")
+    )
+    parser.add_argument(
+        "right",
+        help="right table to join",
+        type=argparse.FileType("r", encoding="utf-8"),
+    )
+
+    required_named = parser.add_argument_group("required named arguments")
     required_named.add_argument(
-        '-o', '--output', help='output file', required=True)
+        "-l", "--left-key", help="left field to join on", required=True
+    )
+    parser.add_argument(
+        "-r",
+        "--right-key",
+        help="right field to join on (leave empty for natural join)",
+        required=False,
+    )
+    parser.add_argument(
+        "-c",
+        "--cardinality",
+        choices=["1:1", "1:m", "m:1", "m:m"],
+        help="validate data cardinality during join",
+        default="m:m",
+    )
+    parser.add_argument(
+        "-j",
+        "--join-method",
+        choices=["left", "right", "outer", "inner", "cross"],
+        help="SQL equivalent join method",
+        default="inner",
+    )
+    required_named.add_argument("-o", "--output", help="output file", required=True)
 
     return parser.parse_args()
 
@@ -110,9 +131,19 @@ if __name__ == "__main__":
     left_df = _read_file(args.left)
     right_df = _read_file(args.right)
 
-    merged_df = left_df.merge(
-        right_df, left_on=args.left_key, right_on=args.right_key, how=args.join_method)
-    print(merged_df[[args.left_key, args.right_key]].head())
+    try:
+        merged_df = left_df.merge(
+            right_df,
+            left_on=args.left_key,
+            right_on=args.right_key,
+            how=args.join_method,
+            validate=args.cardinality,
+            indicator=True,
+        )
+        print(merged_df[[args.left_key, args.right_key]].head())
+    except pd.errors.MergeError as e:
+        print(f"ERROR: {e}")
+        exit(1)
 
     _write_file(merged_df, args.output)
 

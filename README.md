@@ -7,6 +7,7 @@ Currently this only supports reading from and writing to `csv` and `excel` files
 ## Installation
 
 Clone the repository
+
 ```
 $ python3 -m venv venv
 $ source ./venv/bin/activate
@@ -18,7 +19,7 @@ $ source ./venv/bin/activate
 Example Usage
 
 ```bash
-(venv) $ python main.py -l user_id -o data/final.csv data/user.csv data/user_project.csv 
+(venv) $ python main.py -l user_id -o data/final.csv data/user.csv data/user_project.csv
 
 # DESCRIPTION
 #         left            <_io.TextIOWrapper name='data/user.csv' mode='r' encoding='utf8'>
@@ -35,6 +36,7 @@ Example Usage
 ```
 
 Command line interface
+
 ```
 usage: main.py [-h] -l LEFT_KEY [-r RIGHT_KEY] -o OUTPUT left right
 

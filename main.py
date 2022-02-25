@@ -71,7 +71,7 @@ def _write_file(df: pd.DataFrame, file_path: str):
         df.to_excel(file_path, index=False)
 
 
-if __name__ == "__main__":
+def _get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description='a small command line tool to join files')
     parser.add_argument('left', help='left table to join',
@@ -88,7 +88,12 @@ if __name__ == "__main__":
                         'left', 'right', 'inner'], help='SQL equivalent join method', default='inner')
     required_named.add_argument(
         '-o', '--output', help='output file', required=True)
-    args = parser.parse_args()
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = _get_args()
 
     if args.right_key is None:
         args.right_key = args.left_key

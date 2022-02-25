@@ -78,7 +78,7 @@ def _get_args() -> argparse.Namespace:
     Returns:
         argparse.Namespace: parsed arguments
     """
-    
+
     parser = argparse.ArgumentParser(
         description='a small command line tool to join files')
     parser.add_argument('left', help='left table to join',

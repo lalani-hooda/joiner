@@ -19,26 +19,27 @@ $ source ./venv/bin/activate
 Example Usage
 
 ```bash
-(venv) $ python main.py -l user_id -o data/final.csv data/user.csv data/user_project.csv
+(venv) $ python ./main.py -l id -r user_id -j left -o data/final.csv data/user.csv data/user_project.csv
 
 # DESCRIPTION
 #         left            <_io.TextIOWrapper name='data/user.csv' mode='r' encoding='utf8'>
 #         right           <_io.TextIOWrapper name='data/user_project.csv' mode='r' encoding='utf-8'>
-#         left_key        user_id
+#         left_key        id
 #         right_key       user_id
+#         join_method     left
 #         output          data/final.csv
-#    user_id  user_id
-# 0    44921    44921
-# 1    44921    44921
-# 2    44921    44921
-# 3    44921    44921
-# 4    44921    44921
+#       id  user_id
+# 0  44921  44921.0
+# 1  44921  44921.0
+# 2  44921  44921.0
+# 3  44921  44921.0
+# 4  44921  44921.0
 ```
 
 Command line interface
 
 ```
-usage: main.py [-h] -l LEFT_KEY [-r RIGHT_KEY] -o OUTPUT left right
+usage: main.py [-h] -l LEFT_KEY [-r RIGHT_KEY] [-j {left,right,inner}] -o OUTPUT left right
 
 a small command line tool to join files
 
@@ -50,6 +51,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -r RIGHT_KEY, --right-key RIGHT_KEY
                         right field to join on (leave empty for natural join)
+  -j {left,right,inner}, --join-method {left,right,inner}
+                        SQL equivalent join method
 
 required named arguments:
   -l LEFT_KEY, --left-key LEFT_KEY

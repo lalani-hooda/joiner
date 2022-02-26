@@ -1,5 +1,6 @@
 import argparse
 import io
+import logging
 import pathlib
 from enum import Enum, auto
 
@@ -21,8 +22,9 @@ def _dump_args(args: argparse.Namespace):
     """
 
     t = vars(args)
-    print("DESCRIPTION")
-    [print(f"\t{k:10}\t{t[k]}") for _, k in enumerate(t)]
+    s = ["DESCRIPTION"]
+    [s.append(f"\t{k:10}\t{t[k]}") for _, k in enumerate(t)]
+    logging.debug("\n".join(s))
 
 
 def _get_data_type(file_path: str) -> DataType:
@@ -59,6 +61,8 @@ def _read_file(file_path: str) -> pd.DataFrame:
 
     assert len(DataType) == 4, "_read_file: non-exhaustive handling of data types"
     dtype = _get_data_type(file_path)
+
+    logging.info(f"reading file: {file_path!r} of data type: {dtype!s}")
     if dtype == DataType.CSV:
         return pd.read_csv(file_path)
     if dtype == DataType.EXCEL:
@@ -79,6 +83,8 @@ def _write_file(df: pd.DataFrame, file_path: str):
 
     assert len(DataType) == 4, "_write_file: non-exhaustive handling of data types"
     dtype = _get_data_type(file_path)
+
+    logging.info(f"writing file: {file_path!r} of data type: {dtype!s}")
     if dtype == DataType.CSV:
         df.to_csv(file_path, index=False)
     elif dtype == DataType.EXCEL:
@@ -134,6 +140,7 @@ def _get_args() -> argparse.Namespace:
         help="SQL equivalent join method",
         default="inner",
     )
+    parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     required_named.add_argument("-o", "--output", help="output file", required=True)
 
     return parser.parse_args()
@@ -145,15 +152,26 @@ if __name__ == "__main__":
     if args.right_key is None:
         args.right_key = args.left_key
 
+    if args.verbose:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.ERROR)
+
     _dump_args(args)
 
-    left_df = _read_file(args.left.name)
-    right_df = _read_file(args.right.name)
+    left_name = args.left.name
+    right_name = args.right.name
 
     args.left.close()
     args.right.close()
 
+    left_df = _read_file(left_name)
+    right_df = _read_file(right_name)
+
     try:
+        logging.info(
+            f"joining:\n\tdataframes: {left_name!r} & {right_name!r}\n\ton: {args.left_key!r} = {args.right_key!r}\n\twith: {args.cardinality!r} cardinality"
+        )
         merged_df = left_df.merge(
             right_df,
             left_on=args.left_key,
@@ -162,9 +180,9 @@ if __name__ == "__main__":
             validate=args.cardinality,
             indicator=True,
         )
-        print(merged_df[[args.left_key, args.right_key]].head())
+        logging.debug(f"\n{merged_df[[args.left_key, args.right_key]].head()!r}")
     except pd.errors.MergeError as e:
-        print(f"ERROR: {e}")
+        logging.error(e)
         exit(1)
 
     _write_file(merged_df, args.output)

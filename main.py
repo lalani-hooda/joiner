@@ -83,12 +83,14 @@ def _get_args() -> argparse.Namespace:
         description="a small command line tool to join files"
     )
     parser.add_argument(
-        "left", help="left table to join", type=argparse.FileType("r", encoding='unicode_escape')
+        "left",
+        help="left table to join",
+        type=argparse.FileType("r", encoding="unicode_escape"),
     )
     parser.add_argument(
         "right",
         help="right table to join",
-        type=argparse.FileType("r", encoding='unicode_escape'),
+        type=argparse.FileType("r", encoding="unicode_escape"),
     )
 
     required_named = parser.add_argument_group("required named arguments")
@@ -131,6 +133,9 @@ if __name__ == "__main__":
     left_df = _read_file(args.left.name)
     right_df = _read_file(args.right.name)
 
+    args.left.close()
+    args.right.close()
+
     try:
         merged_df = left_df.merge(
             right_df,
@@ -146,6 +151,3 @@ if __name__ == "__main__":
         exit(1)
 
     _write_file(merged_df, args.output)
-
-    args.left.close()
-    args.right.close()

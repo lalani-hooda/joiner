@@ -40,21 +40,21 @@ def _get_data_type(file_path: str) -> DataType:
         return DataType.EXCEL
 
 
-def _read_file(file: io.TextIOWrapper) -> pd.DataFrame:
+def _read_file(file_path: str) -> pd.DataFrame:
     """read a file as a pandas dataframe
 
     Args:
-        file (io.TextIOWrapper): file to turn into dataframe
+        file_path (str): path of file to turn into dataframe
 
     Returns:
         pd.DataFrame: file loaded as dataframe
     """
 
-    dtype = _get_data_type(file.name)
+    dtype = _get_data_type(file_path)
     if dtype == DataType.CSV:
-        return pd.read_csv(file)
+        return pd.read_csv(file_path)
     if dtype == DataType.EXCEL:
-        return pd.read_excel(file)
+        return pd.read_excel(file_path)
 
 
 def _write_file(df: pd.DataFrame, file_path: str):
@@ -83,12 +83,12 @@ def _get_args() -> argparse.Namespace:
         description="a small command line tool to join files"
     )
     parser.add_argument(
-        "left", help="left table to join", type=argparse.FileType("r", encoding="utf8")
+        "left", help="left table to join", type=argparse.FileType("r", encoding='unicode_escape')
     )
     parser.add_argument(
         "right",
         help="right table to join",
-        type=argparse.FileType("r", encoding="utf-8"),
+        type=argparse.FileType("r", encoding='unicode_escape'),
     )
 
     required_named = parser.add_argument_group("required named arguments")
@@ -128,8 +128,8 @@ if __name__ == "__main__":
 
     _dump_args(args)
 
-    left_df = _read_file(args.left)
-    right_df = _read_file(args.right)
+    left_df = _read_file(args.left.name)
+    right_df = _read_file(args.right.name)
 
     try:
         merged_df = left_df.merge(

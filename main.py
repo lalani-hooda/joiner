@@ -9,6 +9,8 @@ import pandas as pd
 class DataType(Enum):
     CSV = auto()
     EXCEL = auto()
+    JSON = auto()
+    JSONL = auto()
 
 
 def _dump_args(args: argparse.Namespace):
@@ -33,11 +35,16 @@ def _get_data_type(file_path: str) -> DataType:
         DataType: enum of data type
     """
 
+    assert len(DataType) == 4, "_get_data_type: non-exhaustive handling of data types"
     ext = pathlib.Path(file_path).suffix
     if ext == ".csv":
         return DataType.CSV
     if ext in [".xls", ".xlsx"]:
         return DataType.EXCEL
+    if ext == ".json":
+        return DataType.JSON
+    if ext == ".jsonl":
+        return DataType.JSONL
 
 
 def _read_file(file_path: str) -> pd.DataFrame:
@@ -50,11 +57,16 @@ def _read_file(file_path: str) -> pd.DataFrame:
         pd.DataFrame: file loaded as dataframe
     """
 
+    assert len(DataType) == 4, "_read_file: non-exhaustive handling of data types"
     dtype = _get_data_type(file_path)
     if dtype == DataType.CSV:
         return pd.read_csv(file_path)
     if dtype == DataType.EXCEL:
         return pd.read_excel(file_path)
+    if dtype == DataType.JSON:
+        return pd.read_json(file_path)
+    if dtype == DataType.JSONL:
+        return pd.read_json(file_path, lines=True)
 
 
 def _write_file(df: pd.DataFrame, file_path: str):
@@ -65,11 +77,16 @@ def _write_file(df: pd.DataFrame, file_path: str):
         file_path (str): path of file to write
     """
 
+    assert len(DataType) == 4, "_write_file: non-exhaustive handling of data types"
     dtype = _get_data_type(file_path)
     if dtype == DataType.CSV:
         df.to_csv(file_path, index=False)
     elif dtype == DataType.EXCEL:
         df.to_excel(file_path, index=False)
+    elif dtype == DataType.JSON:
+        df.to_json(file_path, orient="records")
+    elif dtype == DataType.JSONL:
+        df.to_json(file_path, lines=True, orient="records")
 
 
 def _get_args() -> argparse.Namespace:

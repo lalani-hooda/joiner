@@ -3,6 +3,7 @@ import io
 import logging
 import pathlib
 from enum import Enum, auto
+from typing import Optional
 
 import pandas as pd
 
@@ -95,7 +96,7 @@ def _write_file(df: pd.DataFrame, file_path: str):
         df.to_json(file_path, lines=True, orient="records")
 
 
-def _get_args() -> argparse.Namespace:
+def _get_args(args=None) -> argparse.Namespace:
     """receive and parse command line arguments
 
     Returns:
@@ -143,11 +144,18 @@ def _get_args() -> argparse.Namespace:
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     required_named.add_argument("-o", "--output", help="output file", required=True)
 
-    return parser.parse_args()
+    return parser.parse_args() if args is None else parser.parse_args(args)
 
 
-if __name__ == "__main__":
-    args = _get_args()
+def main(args: Optional[list[str]] = None):
+    """main function with application functionality
+
+    Args:
+        args (Optional[list[str]]): list of command line arguments
+                                    (optional if calling main as a script)
+    """
+
+    args = _get_args(args)
 
     if args.right_key is None:
         args.right_key = args.left_key
@@ -186,3 +194,7 @@ if __name__ == "__main__":
         exit(1)
 
     _write_file(merged_df, args.output)
+
+
+if __name__ == "__main__":
+    main()

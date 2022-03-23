@@ -2,7 +2,7 @@
 
 Simple command line tool to join two data files on an index and export a flat file of the result
 
-Currently this only supports reading from and writing to `csv` and `excel` files.
+Currently this only supports reading from and writing to `csv`, `excel`, and `json`/`jsonl` files.
 
 ## Installation
 
